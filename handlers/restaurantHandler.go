@@ -21,23 +21,27 @@ func GetRestaurants(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// CreateRestaurant Add a new restaurant with error handling
-func CreateRestaurant(w http.ResponseWriter, r *http.Request) {
+// CreateRestaurants CreateRestaurant Add a new restaurant with error handling
+func CreateRestaurants(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	var restaurant models.Restaurant
-	if err := json.NewDecoder(r.Body).Decode(&restaurant); err != nil {
+	var newRestaurants []models.Restaurant
+	if err := json.NewDecoder(r.Body).Decode(&newRestaurants); err != nil {
 		log.Printf("Error decoding request body: %v", err)
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
-	restaurant.ID = uint(len(restaurants) + 1)
-	restaurants = append(restaurants, restaurant)
+	// Add each new restaurant to the restaurants list
+	for _, restaurant := range newRestaurants {
+		restaurant.ID = uint(len(restaurants) + 1)
+		restaurants = append(restaurants, restaurant)
+	}
 
-	if err := json.NewEncoder(w).Encode(restaurant); err != nil {
+	// Respond with the newly added restaurants
+	if err := json.NewEncoder(w).Encode(newRestaurants); err != nil {
 		log.Printf("Error encoding response: %v", err)
-		http.Error(w, "Failed to add restaurant", http.StatusInternalServerError)
+		http.Error(w, "Failed to add restaurants", http.StatusInternalServerError)
 		return
 	}
 }
